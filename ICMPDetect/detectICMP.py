@@ -3,12 +3,14 @@
 ##############################################
 # This program capture live packet and detect
 # ICMP packets using Pyshark module
+# Note: This script works on Linux only
 ##############################################
 import pyshark
 import argparse
 import subprocess
 import re
 
+#Parser to receive input from users
 def receiveInput():
     parser=argparse.ArgumentParser()
     parser.add_argument('-f','--file', dest='fileName', help='Output file name')
@@ -26,7 +28,8 @@ def receiveInput():
         name= options.fileName
     return name, options.interface,options.packetCount
 
-#Receiving host IP address
+
+#Capture host IP Address
 def ipCapture(interface):
     try:
         cmdOutput=subprocess.check_output(['ifconfig',interface])
@@ -36,6 +39,7 @@ def ipCapture(interface):
         Ip=False
     return Ip
 
+#Compare IPs 
 def compareIP(ip1,ip2):
     for sub1,sub2 in zip(ip1.split('.'), ip2.split('.')):
         if sub1==sub2:
@@ -46,17 +50,19 @@ def compareIP(ip1,ip2):
     return sameIP
 
 
-#Capturing ICMP packets
+#Capturing ICMP packets live using Pyshark
 def icmpScanning(fileName, inface, host,packets):
     capture= pyshark.LiveCapture(interface=inface,display_filter='icmp')#Live capture on the interface
     newfile=open(fileName,'w')
     
 
     for packet in capture.sniff_continuously(packet_count=int(packets)):
-        if packet['icmp'].Type=='8': #Capture icmp request
+        if packet['icmp'].Type=='8': #Capture icmp request packet
             IPequal=compareIP(packet['ip'].src,host)
             if not IPequal:
                 print ('[-]Someone is trying to ping the server from',packet['ip'].dst)
+                
+                #Write output to a file
                 newfile.write('ALERT!!! SOMEONE IS TRYING TO PING FROM OUTSIDE\n')
                 newfile.write('Packet coming from host: '+ str(packet['ip'].dst)+'\n')
                 newfile.write(str(packet)+"\n\n")
