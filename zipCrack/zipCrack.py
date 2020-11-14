@@ -10,7 +10,6 @@
 #--------------------------------------------------------
 
 # Import the important library
-from sys import argv
 import zipfile
 
 
