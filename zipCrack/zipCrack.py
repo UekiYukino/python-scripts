@@ -10,7 +10,6 @@
 #--------------------------------------------------------
 
 # Import the important library
-from sys import argv
 import zipfile
 import argparse
 
@@ -71,6 +70,11 @@ if result:
         else:
             print("[-] Wordlist or zip file not found")
 else:
+<<<<<<< HEAD
     print("[-] Password not found, try another wordlist")
         
     
+=======
+    print("Password not found in list")
+    
+>>>>>>> 3d5b6a953addde6c4234c7714c77823d8ca5385e
