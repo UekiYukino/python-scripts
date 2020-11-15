@@ -4,8 +4,8 @@
 #
 #
 # History:
-# Date			Author			        Description
-# 2018/25/05	TUAN KHANH VU			Initial Creation
+# Date			Author		Description
+# 2018/25/05	TUAN KHANH VU		Initial Creation
 # 2020/13/11    TUAN KHANH VU           Edit Code
 #--------------------------------------------------------
 
@@ -21,9 +21,9 @@ def receiveInput():
     parser.add_argument('-z','--zipfile', dest='zipFile', help='Specify the zip file name')
     options=parser.parse_args()
     if not options.wordList:
-        parser.error('[-] Specify an interface, use --help for more information')
+        parser.error('[-] Specify a wordlist to use, use --help for more information')
     elif not options.zipFile:
-        parser.error('[-] Specify the number of packets to capture, use --help for more information')
+        parser.error('[-] Specify zip file, use --help for more information')
 
     return options.wordList,options.zipFile
     
