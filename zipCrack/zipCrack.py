@@ -68,7 +68,7 @@ result=getPwd()
 if result:
     for item in result:
         if item != 1:
-            print("[+] Password found: %s"%result)
+            print("[+] Password found: %s"%item)
         else:
             print("[-] Wordlist or zip file not found")
 else:
