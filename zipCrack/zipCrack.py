@@ -12,6 +12,21 @@
 # Import the important library
 from sys import argv
 import zipfile
+import argparse
+
+def receiveInput():
+    parser=argparse.ArgumentParser()
+
+    parser.add_argument('-w','--wordlist', dest='wordList', help='Specify the wordlist to use')
+    parser.add_argument('-z','--zipfile', dest='zipFile', help='Specify the zip file name')
+    options=parser.parse_args()
+    if not options.wordList:
+        parser.error('[-] Specify an interface, use --help for more information')
+    elif not options.zipFile:
+        parser.error('[-] Specify the number of packets to capture, use --help for more information')
+
+    return options.wordList,options.zipFile
+    
 
 
 def testZip(wlist,file):
@@ -25,16 +40,15 @@ def testZip(wlist,file):
 
 #Create function that test password of a zip file and add to a list 
 def getPwd():	
-    pwdfile=input("Enter your wordlist: ")
-    zfile=input("Enter your zip file: ")
+    pwdfile, zfile=receiveInput()
     
 	#Check the file
     test=testZip(pwdfile, zfile)
-
+    pwdlist=[]
     if test:
         zip=zipfile.ZipFile(zfile)
         pwd=open(pwdfile,"r")
-        pwdlist=[]
+
         for line in pwd:
             passwd = line.strip() #Strip each line for password only
             try: #Test each line of the file 
@@ -45,14 +59,18 @@ def getPwd():
                 continue 
 
     else:
-        print("The zip file or wordlist entered does not exist")
+        pwdlist=[1] #return 1 if the file is invalid
     return pwdlist
 
 #Execute the function to test password
 result=getPwd()
 if result:
     for item in result:
-        print ("The password is: %s"%item)
+        if item != 1:
+            print("[+] Password found: %s"%result)
+        else:
+            print("[-] Wordlist or zip file not found")
 else:
-    print("Password not found in list")
+    print("[-] Password not found, try another wordlist")
+        
     
