@@ -2,12 +2,6 @@
 #--------------------------------------------------------
 # Description: This program accept a directory and print
 #	       out the contents
-#
-#
-#
-# History:
-# Date		Author			Description
-# 2018/07/06	TUAN KHANH VU		Initial Creation
 #--------------------------------------------------------
 
 # Import Library

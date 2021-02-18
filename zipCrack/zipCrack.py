@@ -4,14 +4,9 @@
 #			   using a wordlist 
 #
 #
-# History:
-# Date			Author		Description
-# 2018/25/05	TUAN KHANH VU		Initial Creation
-# 2020/13/11    TUAN KHANH VU           Edit Code
-#--------------------------------------------------------
+#---------------------------------------------------------
 
 # Import the important library
-from sys import argv
 import zipfile
 import argparse
 
