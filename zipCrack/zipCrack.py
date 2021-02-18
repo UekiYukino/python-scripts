@@ -9,10 +9,12 @@
 # Import the important library
 import zipfile
 import argparse
+import sys
+import multiprocessing
 
 def receiveInput():
+    """Process the input"""
     parser=argparse.ArgumentParser()
-
     parser.add_argument('-w','--wordlist', dest='wordList', help='Specify the wordlist to use')
     parser.add_argument('-z','--zipfile', dest='zipFile', help='Specify the zip file name')
     options=parser.parse_args()
@@ -24,47 +26,38 @@ def receiveInput():
     return options.wordList,options.zipFile
     
 
-
-def testZip(wlist,file):
+#Test password against the encrypted zipfile
+def passwordTest(passwd,zfile):
+    """Set password to the zip file and try to process it with testzip then output possible password for the zip file"""
     try:
-        pwd=open(wlist,"r")
-        zip= zipfile.ZipFile(file)
-        answer= True 
-    except:
-        answer= False
-    return answer
+        z=zipfile.ZipFile(zfile)
+        #Encode the password to bytes then use it to test the encrypted zip
+        z.setpassword(bytes(passwd,"utf-8"))
+        z.testzip()
+        print("[+] Possible password found: {}".format(passwd))
+    except FileNotFoundError: #If zip file does not exist -> Print the message then escape the program
+        print("[-] {} does not exist on the system".format(zfile))
+        sys.exit(1)
+    except NotImplementedError:
+        print("[-] Compression method for {} is not supported".format(zfile))
+        sys.exit(1)
+    except: #Pass other error message
+        pass
 
-#Create function that test password of a zip file and add to a list 
-def getPwd():	
+#This function iterate through the wordlist and test each password
+def getPwd():
+    """Iterate through the wordlist and test each password"""
     pwdfile, zfile=receiveInput()
-    
-	#Check the file
-    test=testZip(pwdfile, zfile)
-    pwdlist=[]
-    if test:
-        zip=zipfile.ZipFile(zfile)
-        pwd=open(pwdfile,"r")
+    #Open and process through the wordlist
+    try:   
+        with open(pwdfile,"r") as pwd:
+            for line in pwd:
+                passwd = line.strip() #Strip each line for password only
+                #Test each line of the file 
+                passwordTest(passwd,zfile)
+            print("[+] Reaching the end of wordlist")
+    except FileNotFoundError:
+        print("[-] Wordlist not found on system")
 
-        for line in pwd:
-            passwd = line.strip() #Strip each line for password only
-            try: #Test each line of the file 
-                zip.setpassword(bytes(passwd,"utf-8"))#Convert character to bytes and test password
-                zip.testzip()
-                pwdlist= pwdlist+[passwd]
-            except:
-                continue 
-
-    else:
-        pwdlist=[1] #return 1 if the file is invalid
-    return pwdlist
-
-#Execute the function to test password
-result=getPwd()
-if result:
-    for item in result:
-        if item != 1:
-            print("[+] Password found: %s"%item)
-        else:
-            print("[-] Wordlist or zip file not found")
-else:
-    print("[-] Password not found, try another wordlist")
+#Execute the function
+getPwd()
