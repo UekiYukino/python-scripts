@@ -10,7 +10,7 @@
 import zipfile
 import argparse
 import sys
-import multiprocessing
+from tqdm import tqdm
 
 def receiveInput():
     """Process the input"""
@@ -34,7 +34,7 @@ def passwordTest(passwd,zfile):
         #Encode the password to bytes then use it to test the encrypted zip
         z.setpassword(bytes(passwd,"utf-8"))
         z.testzip()
-        print("[+] Possible password found: {}".format(passwd))
+        print("\n[+] Possible password found: {}".format(passwd))
     except FileNotFoundError: #If zip file does not exist -> Print the message then escape the program
         print("[-] {} does not exist on the system".format(zfile))
         sys.exit(1)
@@ -51,7 +51,7 @@ def getPwd():
     #Open and process through the wordlist
     try:   
         with open(pwdfile,"r") as pwd:
-            for line in pwd:
+            for line in tqdm(pwd,desc="Processing",leave=False,unit=" passwords"):
                 passwd = line.strip() #Strip each line for password only
                 #Test each line of the file 
                 passwordTest(passwd,zfile)
