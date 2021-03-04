@@ -21,9 +21,13 @@ def receive_input():
         parser.error("[-] Input file or directory is missing, use --help for more information")
     elif not (options.destinationDirectory or options.outputImage):
         parser.error("[-] Output file or directory is missing, use --help for more information")
-    
+            
+    #Message the user if they use -o or --output without specify an extension for the output file
+    elif options.outputImage and ("." not in options.outputImage and not options.extension):
+        parser.error("[-] Extension is missing from output file")
+
     #Message the user if they want to resize image and only add width or height
-    if options.width or options.height:
+    elif options.width or options.height:
         if not options.width:
             parser.error("[-] Width is missing, use --help for more information")
         elif not options.height:
@@ -32,23 +36,30 @@ def receive_input():
             size=(int(options.width),int(options.height))
     else:
         size=None #Return None if neither width or height is specify
-    
-    #Message the user if they use -o or --output without specify an extension for the output file
-    if "." not in options.outputImage and not options.extension:
-        parser.error("[-] Extension is missing from output file")
 
     return options.sourceDirectory, options.destinationDirectory, options.inputImage, options.outputImage, size, options.extension
 
 
-def edit_image(old_pic,new_pic,size):
+def edit_image(old_pic,new_pic,size,ext):
     """Edit/modify image according to the input parameter"""
+    #Check if the input is a file or not
+    if os.path.isdir(old_pic):
+        print("[-] \"{}\" is not a file! Please try again".format(old_pic))
+        sys.exit(1)
+
     try:
-        #Convert the image to RGB and edit the image
+        #Convert the image to RGBA or RGB according to output extension and edit the image
         pic = Image.open(old_pic)
         if pic.mode == "RGB":
             rbg_pic=pic
-        else:
+        
+        #If the new extension is jpeg, conver the image to RGB
+        elif (ext and (ext.lower()=="jpeg" or ext.lower()==".jpeg")) or new_pic.split(".")[-1].lower()=="jpeg":
             rbg_pic=pic.convert("RGB")
+
+        #Else convert the image to RGBA
+        else:
+            rbg_pic=pic.convert("RGBA")
         
         #If no size is specify -> Do not resize the image
         if not size:
@@ -61,15 +72,19 @@ def edit_image(old_pic,new_pic,size):
         print("[-] {} might not be an image file! Skipping".format(old_pic))
     except IsADirectoryError:
         print("[-] {} is a directory! Please try again".format(old_pic))
-
+    #Catch ValueError when the entered extension is invalid
+    except ValueError:
+        print("[-] {} is an invalid extension".format(ext))
+        sys.exit(1)
 
 def change_extension(old_name,new_ext):
     """Changing the extension of a given file to a new one"""
+
     #If the file does not have an extension -> Add the new extension to it
     if "." not in old_name:
         #If the new extension is not specify for a file without extention -> message the user to specify an extension
         if not new_ext:
-            print("[-] The current input file does not have an extension, use -x to specify one or --help for more information")
+            print("[-] The current input file does not have an extension, use -x to specify one for the output or --help for more information")
             sys.exit(1)
         else:
             new_name= "{}.{}".format(old_name,new_ext)
@@ -115,7 +130,7 @@ def process_image(path,dest,size,new_ext):
 
             #Join the path and file name together then save the new image to the destination
             new_pic=os.path.join(new_path,new_name)
-            edit_image(old_pic,new_pic,size)
+            edit_image(old_pic,new_pic,size,new_ext)
 
 def main():
     #Except user input
@@ -129,13 +144,13 @@ def main():
     elif inFile:
         if outFile:
             new_name=change_extension(outFile,ext)
-            edit_image(inFile,new_name,size)
+            edit_image(inFile,new_name,size,ext)
         elif dest:
             #Call destination check function to check and create destination directory when needed
             dest_check(dest)
             new_name=change_extension(inFile,ext)#Check and change extension when needed
             new_pic=os.path.join(dest,new_name)
-            edit_image(inFile,new_pic,size)
+            edit_image(inFile,new_pic,size,ext)
     else:
         print("[-] Invalid input, output parameters! Please try again")
 
