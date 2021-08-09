@@ -9,7 +9,7 @@ def check_input():
     """Validate user input and display help"""
     #Display usage if user don't know the parameters
     if len(sys.argv) < 3:
-        print("[+] Usage: python client.py <[server_ip]> <[server_port]>")
+        print("[+] Usage: python server.py <[server_ip]> <[server_port]>")
         sys.exit(1)
     srv_add = sys.argv[1]
     if len(srv_add.split(".")) != 4:
