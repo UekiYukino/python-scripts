@@ -19,14 +19,16 @@ def check_input():
             sys.exit(1)
     try:
         srv_port = int(sys.argv[2])
+        return srv_add,srv_port
     except:
         print("[-] Invalid port format")
         sys.exit(1)
 
-check_input()
+
 #Create a Tcp socket on client
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
+    srv_add,srv_port=check_input()
     client.connect((srv_add,srv_port))
     print("*" * 50)
     print("[+] Connected to {}:{}".format(srv_add,srv_port))
